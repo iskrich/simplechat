@@ -27,23 +27,29 @@ class SimpleChatUser:
         while self.connected:
             msg = raw_input()
             if msg.strip() == "exit":
-                self.connected = False
-                self.socket.close()
+                self.exit()
                 break
             else:
                 self.socket.send(msg)
 
+    def login(self, nickname):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((host, port))
+        self.socket.settimeout(2)
+
+        self.nickname = nickname
+        self.socket.send(self.nickname)
+
+        return self.socket.recv(buffer_size)
+
+    def exit(self):
+        self.connected = False
+        self.socket.close()
+
     def enter_chat(self):
 
         while 1:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.connect((host, port))
-            self.socket.settimeout(2)
-
-            self.nickname = raw_input("Enter your name: ")
-            self.socket.send(self.nickname)
-
-            response = self.socket.recv(buffer_size)
+            response = self.login(raw_input("Enter your name:"))
             if response == "Fail_Nick":
                 print("Nickname %s already used, please try again" % self.nickname)
                 self.socket.close()
