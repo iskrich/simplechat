@@ -10,6 +10,7 @@ class SimpleChatServer:
         #start server socket
         print("Starting server on localhost:%d" % port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setblocking(0)
         self.socket.bind(('localhost', port))
         self.socket.listen(100)
         self.currentUsers = {}
@@ -39,6 +40,7 @@ class SimpleChatServer:
                 self.currentUsers[adr]["socket"].send(msg + "\n")
             except socket.error as er:
                 if er.errno == errno.WSAECONNRESET:
+                    self.currentUsers[adr].close()
                     del self.currentUsers[adr]
         print(msg)
 
