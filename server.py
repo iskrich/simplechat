@@ -43,7 +43,7 @@ class SimpleChatServer:
                                      self.currentUsers[sock], msg)
         for s in self.currentUsers.keys():
             try:
-                if s != self.socket and s != sock:
+                if s != self.socket:
                     s.send(msg + "\n")
             except socket.error as er:
                 if er.errno == errno.WSAECONNRESET:
