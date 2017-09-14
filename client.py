@@ -9,10 +9,8 @@ class SimpleChatUser:
     def __init__(self, nickname):
         self.nickname = nickname
         #connect to server
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((host, port))
         self.connected = True
-
+        self.socket = None
     def recieveMsg(self):
         while self.connected:
             sockets = [self.socket]
@@ -35,13 +33,26 @@ class SimpleChatUser:
             self.socket.send(msg)
 
     def enterChat(self):
-        self.nickname = raw_input("Enter your name: ")
-        self.socket.send(self.nickname)
+        while 1:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.connect((host, port))
+            self.nickname = raw_input("Enter your name: ")
+            self.socket.send(self.nickname)
+
+            response = self.socket.recv(buffer_size)
+            if response == "Fail_Nick":
+                print("Nickname %s already used, please try again" % self.nickname)
+                self.socket.close()
+            else:
+                print(response)
+                break
+
         Thread(target=self.sendMsg, args=()).start()
         Thread(target=self.recieveMsg, args=()).start()
 
     def exitChat(self):
         self.socket.close()
+
 
 if __name__ == "__main__":
     user = SimpleChatUser("Alice")

@@ -17,6 +17,11 @@ class SimpleChatServer:
     def _processNewUsers(self):
         connect, address = self.socket.accept()
         nick = connect.recv(buffer_size)
+
+        if nick in self.currentUsers.values():
+            connect.send("Fail_Nick")
+            return
+
         self.currentUsers[connect] = nick
         connect.send("Welcome to chat %s, type 'exit' for leaving from chat\n" % nick)
         self._broadcast(connect, "Connected to chat")
