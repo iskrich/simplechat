@@ -1,5 +1,4 @@
 import socket
-import select
 import os
 
 from threading import Thread
@@ -14,26 +13,19 @@ class SimpleChatUser:
 
     def recieveMsg(self):
         while self.connected:
-            sockets = [self.socket]
-            reads, writes, errors = select.select(sockets, [], [])
-            for s in reads:
-                try:
-                    if s == self.socket:
-                        msg = s.recv(buffer_size)
-                        if not msg:
-                            os._exit(0)
-                        else:
-                            # delete last newline character
-                            print(msg[:-1])
-                except Exception as e:
-                    print(e.message)
-                    os._exit(0)
+            try:
+                data = self.socket.recv(buffer_size)
+            except socket.timeout:
+                continue
+            if data:
+                print data[:-1]
 
     def sendMsg(self):
         while self.connected:
             msg = raw_input()
             if msg.strip() == "exit":
-                os._exit(0)
+                self.connected = False
+                self.socket.close()
                 break
             else:
                 self.socket.send(msg)
@@ -43,6 +35,8 @@ class SimpleChatUser:
         while 1:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((host, port))
+            self.socket.settimeout(2)
+
             self.nickname = raw_input("Enter your name: ")
             self.socket.send(self.nickname)
 

@@ -34,6 +34,7 @@ class SimpleChatServer(Thread):
 
     def _listenUsers(self):
         reads, writes, execs = select.select(self.currentUsers.keys(), [], [], 1)
+
         for s in reads:
             if s is self.socket:
                 self._processNewUsers()
