@@ -1,5 +1,5 @@
 import socket
-
+import datetime
 #maybe need extend
 buffer_size = 1024
 port = 1111
@@ -11,14 +11,25 @@ class SimpleChatServer:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind(('localhost', port))
         self.socket.listen(100)
-        self.currentUsers = []
+        self.currentUsers = {}
         
     def start(self):
         while True:
-            connect, adress = self.socket.accept()
-            msg = connect.recvfrom(buffer_size)
-            print msg
-            print adress
+
+            connect, address = self.socket.accept()
+            msg = connect.recv(buffer_size)
+
+            if address not in (x["address"] for x in self.currentUsers):
+                self.currentUsers[address] = {"nickname": msg, "socket": connect}
+                connect.send("Welcome to chat %s\n" % msg)
+                msg = "%s connected to chat\n" % msg
+            else:
+                now = datetime.datetime.now()
+                msg = "[%d:%d:%d] %s: %s" % (now.hour, now.minute, now.second,
+                                             self.currentUsers[address]["nickname"], msg)
+            for user in self.currentUsers.itervalues():
+                user["socket"].send(msg + "\n")
+            print(msg)
 
 if __name__ == "__main__":
     server = SimpleChatServer()
