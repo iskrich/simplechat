@@ -19,9 +19,9 @@ class SimpleChatServer:
             connect, address = self.socket.accept()
             msg = connect.recv(buffer_size)
 
-            if address not in (x["address"] for x in self.currentUsers):
+            if address not in self.currentUsers:
                 self.currentUsers[address] = {"nickname": msg, "socket": connect}
-                connect.send("Welcome to chat %s\n" % msg)
+                connect.send("Welcome to chat %s, type 'exit' for leaving from chat\n" % msg)
                 msg = "%s connected to chat\n" % msg
             else:
                 now = datetime.datetime.now()
