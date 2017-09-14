@@ -11,6 +11,7 @@ class SimpleChatUser:
         self.nickname = ""
         self.connected = True
         self.socket = None
+        self.history = []
 
     def recieve_msg(self):
         while self.connected:
@@ -19,6 +20,7 @@ class SimpleChatUser:
             except socket.timeout:
                 continue
             if data:
+                self.history.append(data[:-1])
                 print data[:-1]
 
     def send_msg(self):
