@@ -2,18 +2,23 @@ import socket
 import errno
 import datetime
 import select
+from threading import Thread
 from params import buffer_size, host, port, max_users
 
 
-class SimpleChatServer:
+class SimpleChatServer(Thread):
     def __init__(self):
-        #start server socket
+        # start server socket
         print("Starting server on %s:%d" % (host, port))
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((host, port))
         self.socket.listen(max_users)
+
+        self.stopped = False
         self.currentUsers = {}
         self.currentUsers[self.socket] = "Server"
+        Thread.__init__(self)
 
     def _processNewUsers(self):
         connect, address = self.socket.accept()
@@ -28,8 +33,7 @@ class SimpleChatServer:
         self._broadcast(self.socket, "%s connected to chat" % nick)
 
     def _listenUsers(self):
-        reads, writes, execs = select.select(self.currentUsers.keys(), [], [])
-
+        reads, writes, execs = select.select(self.currentUsers.keys(), [], [], 1)
         for s in reads:
             if s is self.socket:
                 self._processNewUsers()
@@ -60,10 +64,12 @@ class SimpleChatServer:
         del self.currentUsers[sock]
         self._broadcast(self.socket, "%s disconnected from chat" % nickname)
 
-    def start(self):
-        while True:
+    def run(self):
+        while not self.stopped:
             self._listenUsers()
 
+    def stop(self):
+        self.stopped = True
 
 if __name__ == "__main__":
     server = SimpleChatServer()
