@@ -12,8 +12,8 @@ class SimpleChatUser:
 
     def exitChat(self):
         self.socket.close()
-
-
-user = SimpleChatUser("Alice")
-user.enterChat()
-user.exitChat()
+        
+if __name__ == "__main__":
+    user = SimpleChatUser("Alice")
+    user.enterChat()
+    user.exitChat()

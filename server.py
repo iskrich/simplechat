@@ -20,5 +20,6 @@ class SimpleChatServer:
             print msg
             print adress
 
-server = SimpleChatServer()
-server.start()
+if __name__ == "__main__":
+    server = SimpleChatServer()
+    server.start()
