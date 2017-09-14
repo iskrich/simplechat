@@ -3,14 +3,14 @@ import select
 import sys
 from threading import Thread
 
-from server import buffer_size, port
+from params import buffer_size, port, host
 
 class SimpleChatUser:
     def __init__(self, nickname):
         self.nickname = nickname
         #connect to server
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect(('localhost', port))
+        self.socket.connect((host, port))
         self.connected = True
 
     def recieveMsg(self):

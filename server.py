@@ -2,18 +2,15 @@ import socket
 import errno
 import datetime
 import select
-
-#maybe need extend
-buffer_size = 1024
-port = 1111
+from params import buffer_size, host, port, max_users
 
 class SimpleChatServer:
     def __init__(self):
         #start server socket
-        print("Starting server on localhost:%d" % port)
+        print("Starting server on %s:%d" % (host, port))
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.bind(('localhost', port))
-        self.socket.listen(100)
+        self.socket.bind((host, port))
+        self.socket.listen(max_users)
         self.currentUsers = {}
         self.currentUsers[self.socket] = "Server"
 
