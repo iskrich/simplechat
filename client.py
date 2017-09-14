@@ -46,13 +46,15 @@ class SimpleChatUser:
         self.connected = False
         self.socket.close()
 
-    def enter_chat(self):
-
+    def enter_chat(self, name=""):
         while 1:
-            response = self.login(raw_input("Enter your name:"))
+            if name == "":
+                name = raw_input("Enter your name:")
+            response = self.login(name)
             if response == "Fail_Nick":
                 print("Nickname %s already used, please try again" % self.nickname)
                 self.socket.close()
+                name = ""
             else:
                 print(response)
                 break
