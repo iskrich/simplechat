@@ -1,6 +1,7 @@
 import socket
 import select
 import sys
+
 from threading import Thread
 
 from params import buffer_size, port, host
@@ -18,23 +19,22 @@ class SimpleChatUser:
             for s in reads:
                 try:
                     if s == self.socket:
-                        newMsg = s.recv(buffer_size)
-                        if not newMsg:
+                        msg = s.recv(buffer_size)
+                        if not msg:
                             sys.exit()
                         else:
-                            print(newMsg)
+                            print(msg[:-1])
                 except Exception as e:
                     print(e.message)
                     sys.exit()
 
     def sendMsg(self):
         while self.connected:
-            msg = raw_input(">")
+            msg = raw_input()
             if msg.strip() == "exit":
                 self.connected = False
                 sys.exit()
             self.socket.send(msg)
-
     def enterChat(self):
 
         while 1:

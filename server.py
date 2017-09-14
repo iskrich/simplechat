@@ -24,8 +24,8 @@ class SimpleChatServer:
             return
 
         self.currentUsers[connect] = nick
-        connect.send("Welcome to chat %s, type 'exit' for leaving from chat\n" % nick)
-        self._broadcast(self.socket, "%s connected to chat\n" % nick)
+        connect.send("Welcome to chat %s, type 'exit' for leaving from chat" % nick)
+        self._broadcast(self.socket, "%s connected to chat" % nick)
 
     def _listenUsers(self):
         reads, writes, execs = select.select(self.currentUsers.keys(), [], [])
