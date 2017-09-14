@@ -4,6 +4,7 @@ import datetime
 import select
 from params import buffer_size, host, port, max_users
 
+
 class SimpleChatServer:
     def __init__(self):
         #start server socket
@@ -24,7 +25,7 @@ class SimpleChatServer:
 
         self.currentUsers[connect] = nick
         connect.send("Welcome to chat %s, type 'exit' for leaving from chat\n" % nick)
-        self._broadcast(connect, "Connected to chat")
+        self._broadcast(self.socket, "%s connected to chat\n" % nick)
 
     def _listenUsers(self):
         reads, writes, execs = select.select(self.currentUsers.keys(), [], [])
@@ -33,9 +34,13 @@ class SimpleChatServer:
             if s is self.socket:
                 self._processNewUsers()
             else:
-                msg = s.recv(buffer_size)
-                if msg:
-                    self._broadcast(s, msg)
+                try:
+                    msg = s.recv(buffer_size)
+                    if msg:
+                        self._broadcast(s, msg)
+                except socket.error as er:
+                    if er.errno == errno.WSAECONNRESET:
+                        self._handleDisconnectedUser(s)
 
     def _broadcast(self, sock, msg):
         now = datetime.datetime.now()
@@ -47,8 +52,13 @@ class SimpleChatServer:
                     s.send(msg + "\n")
             except socket.error as er:
                 if er.errno == errno.WSAECONNRESET:
-                    del self.currentUsers[s]
+                    self._handleDisconnectedUser(s)
         print(msg)
+
+    def _handleDisconnectedUser(self, sock):
+        nickname = self.currentUsers[sock]
+        del self.currentUsers[sock]
+        self._broadcast(self.socket, "%s disconnected from chat" % nickname)
 
     def start(self):
         while True:

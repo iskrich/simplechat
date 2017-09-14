@@ -6,33 +6,37 @@ from threading import Thread
 from params import buffer_size, port, host
 
 class SimpleChatUser:
-    def __init__(self, nickname):
-        self.nickname = nickname
-        #connect to server
+    def __init__(self):
+        self.nickname = ""
         self.connected = True
         self.socket = None
+
     def recieveMsg(self):
         while self.connected:
             sockets = [self.socket]
             reads, writes, errors = select.select(sockets, [], [])
             for s in reads:
-                if s == self.socket:
-                    newMsg = s.recv(buffer_size)
-                    if not newMsg:
-                        sys.exit()
-                    else:
-                        print(newMsg)
+                try:
+                    if s == self.socket:
+                        newMsg = s.recv(buffer_size)
+                        if not newMsg:
+                            sys.exit()
+                        else:
+                            print(newMsg)
+                except Exception as e:
+                    print(e.message)
+                    sys.exit()
 
     def sendMsg(self):
         while self.connected:
             msg = raw_input(">")
             if msg.strip() == "exit":
-                self.socket.close()
                 self.connected = False
-                break
+                sys.exit()
             self.socket.send(msg)
 
     def enterChat(self):
+
         while 1:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((host, port))
@@ -50,10 +54,7 @@ class SimpleChatUser:
         Thread(target=self.sendMsg, args=()).start()
         Thread(target=self.recieveMsg, args=()).start()
 
-    def exitChat(self):
-        self.socket.close()
-
 
 if __name__ == "__main__":
-    user = SimpleChatUser("Alice")
+    user = SimpleChatUser()
     user.enterChat()
