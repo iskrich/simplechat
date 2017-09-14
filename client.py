@@ -5,13 +5,14 @@ from threading import Thread
 
 from params import buffer_size, port, host
 
+
 class SimpleChatUser:
     def __init__(self):
         self.nickname = ""
         self.connected = True
         self.socket = None
 
-    def recieveMsg(self):
+    def recieve_msg(self):
         while self.connected:
             try:
                 data = self.socket.recv(buffer_size)
@@ -20,7 +21,7 @@ class SimpleChatUser:
             if data:
                 print data[:-1]
 
-    def sendMsg(self):
+    def send_msg(self):
         while self.connected:
             msg = raw_input()
             if msg.strip() == "exit":
@@ -30,7 +31,7 @@ class SimpleChatUser:
             else:
                 self.socket.send(msg)
 
-    def enterChat(self):
+    def enter_chat(self):
 
         while 1:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,10 +49,10 @@ class SimpleChatUser:
                 print(response)
                 break
 
-        Thread(target=self.sendMsg, args=()).start()
-        Thread(target=self.recieveMsg, args=()).start()
+        Thread(target=self.send_msg, args=()).start()
+        Thread(target=self.recieve_msg, args=()).start()
 
 
 if __name__ == "__main__":
     user = SimpleChatUser()
-    user.enterChat()
+    user.enter_chat()

@@ -20,7 +20,7 @@ class SimpleChatServer(Thread):
         self.currentUsers[self.socket] = "Server"
         Thread.__init__(self)
 
-    def _processNewUsers(self):
+    def _process_new_users(self):
         connect, address = self.socket.accept()
         nick = connect.recv(buffer_size)
 
@@ -32,12 +32,12 @@ class SimpleChatServer(Thread):
         connect.send("Welcome to chat %s, type 'exit' for leaving from chat" % nick)
         self._broadcast(self.socket, "%s connected to chat" % nick)
 
-    def _listenUsers(self):
+    def _listen_users(self):
         reads, writes, execs = select.select(self.currentUsers.keys(), [], [], 1)
 
         for s in reads:
             if s is self.socket:
-                self._processNewUsers()
+                self._process_new_users()
             else:
                 try:
                     msg = s.recv(buffer_size)
@@ -45,7 +45,7 @@ class SimpleChatServer(Thread):
                         self._broadcast(s, msg)
                 except socket.error as er:
                     if er.errno == errno.WSAECONNRESET:
-                        self._handleDisconnectedUser(s)
+                        self._handle_disconnected_user(s)
 
     def _broadcast(self, sock, msg):
         now = datetime.datetime.now()
@@ -57,20 +57,21 @@ class SimpleChatServer(Thread):
                     s.send(msg + "\n")
             except socket.error as er:
                 if er.errno == errno.WSAECONNRESET:
-                    self._handleDisconnectedUser(s)
+                    self._handle_disconnected_user(s)
         print(msg)
 
-    def _handleDisconnectedUser(self, sock):
+    def _handle_disconnected_user(self, sock):
         nickname = self.currentUsers[sock]
         del self.currentUsers[sock]
         self._broadcast(self.socket, "%s disconnected from chat" % nickname)
 
     def run(self):
         while not self.stopped:
-            self._listenUsers()
+            self._listen_users()
 
     def stop(self):
         self.stopped = True
+
 
 if __name__ == "__main__":
     server = SimpleChatServer()
