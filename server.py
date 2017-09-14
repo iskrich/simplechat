@@ -1,4 +1,5 @@
 import socket
+import errno
 import datetime
 #maybe need extend
 buffer_size = 1024
@@ -27,8 +28,13 @@ class SimpleChatServer:
                 now = datetime.datetime.now()
                 msg = "[%d:%d:%d] %s: %s" % (now.hour, now.minute, now.second,
                                              self.currentUsers[address]["nickname"], msg)
-            for user in self.currentUsers.itervalues():
-                user["socket"].send(msg + "\n")
+
+            for adr in self.currentUsers.keys():
+                try:
+                    self.currentUsers[adr]["socket"].send(msg + "\n")
+                except socket.error as er:
+                    if er.errno == errno.WSAECONNRESET:
+                        del self.currentUsers[adr]
             print(msg)
 
 if __name__ == "__main__":
