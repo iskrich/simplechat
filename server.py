@@ -14,6 +14,7 @@ class SimpleChatServer(Thread):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((host, port))
         self.socket.listen(max_users)
+        self.socket.settimeout(1)
 
         self.stopped = False
         self.currentUsers = {}
@@ -42,10 +43,14 @@ class SimpleChatServer(Thread):
                 try:
                     msg = s.recv(buffer_size)
                     if msg:
-                        self._broadcast(s, msg)
+                        if msg.strip() == "exit":
+                            self._handle_disconnected_user(s)
+                        else:
+                            self._broadcast(s, msg)
                 except socket.error as er:
                     if er.errno == errno.WSAECONNRESET:
                         self._handle_disconnected_user(s)
+
 
     def _broadcast(self, sock, msg):
         now = datetime.datetime.now()

@@ -44,6 +44,7 @@ class SimpleChatUser:
 
     def exit(self):
         self.connected = False
+        self.socket.send("exit")
         self.socket.close()
 
     def enter_chat(self, name=""):
